@@ -11,7 +11,7 @@ class DB {
     }
 
     viewAllRoles(){
-        return
+        return this.connection.promise().query('SELECT * FROM role')
 
     }
     viewAllEmployees() {

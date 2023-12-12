@@ -1,5 +1,6 @@
 
 const inquirer = require('inquirer');
+const cTable = require('console.table');
 const db = require('./db')
 const questions = [{
   type: 'list',
@@ -11,8 +12,17 @@ const questions = [{
 
 function viewAllDepartments() {
   db.viewAllDepartments()
-    .then(function (depData) {
-      //console.table(depData)
+    .then(function ([depData]) {
+      console.table(depData)
+      loadOptions()
+    })
+}
+
+function viewAllRoles() {
+  db.viewAllRoles()
+    .then(function ([roleData]) {
+      console.table(roleData)
+      loadOptions()
     })
 }
 
