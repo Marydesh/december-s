@@ -26,6 +26,21 @@ function viewAllRoles() {
     })
 }
 
+function viewAllEmployees() {
+  db.viewAllEmployees()
+    .then(function ([employeeData]) {
+      console.table(employeeData)
+      loadOptions()
+    })
+}
+
+function addDepartment() {
+  db.addDepartment()
+    .then(function ([departmentData]) {
+      console.table(departmentData)
+      loadOptions()
+    })
+}
 function loadOptions() {
   inquirer
     .prompt(questions)
