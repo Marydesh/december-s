@@ -7,7 +7,7 @@ const connection = mysql.createConnection(
       password: 'Berkeley2023!',
       database: 'employees_db'
     },
-    console.log(`Connected to the movie_db database.`)
+    console.log(`Connected to the employees_db database.`)
   );
 
   connection.connect(function(err){

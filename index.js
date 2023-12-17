@@ -1,14 +1,27 @@
 
 const inquirer = require('inquirer');
 const cTable = require('console.table');
-const db = require('./db')
+const db = require('./db');
+const { type } = require('os');
 const questions = [{
   type: 'list',
   name: 'choice',
   message: 'Select one from the following:',
-  choices: ['view all departments', 'view all roles', 'view all employees', 'add a department', 'add a role', 'add an employee', 'update an employee role']
+  choices: [
+    'view all departments', 
+    'view all roles', 
+    'view all employees', 
+    'add a department', 
+    'add a role', 
+    'add an employee', 
+    'update an employee role'
+  ]
 }]
 
+async function getAll(key) {
+  let [data] = await db[`viewAll${key}`]()
+  return data
+}
 
 function viewAllDepartments() {
   db.viewAllDepartments()
@@ -17,6 +30,14 @@ function viewAllDepartments() {
       loadOptions()
     })
 }
+
+/*
+  async function viewAllDepartments() {
+    let [depData] = await db.viewAllDepartments()
+    console.table(depData)
+    loadOptions()
+  }
+*/
 
 function viewAllRoles() {
   db.viewAllRoles()
@@ -35,12 +56,101 @@ function viewAllEmployees() {
 }
 
 function addDepartment() {
-  db.addDepartment()
-    .then(function ([departmentData]) {
-      console.table(departmentData)
-      loadOptions()
-    })
+  inquirer
+  .prompt([ 
+    {
+      type: "input",
+      name: "departmentName",
+      message: "What is the name of the department?"
+    }
+  ])
+  .then(function (answer) {
+    const departmentName = answer.departmentName;
+
+    db.addDepartment(departmentName)
+      .then(function (departmentData) {
+        console.log(departmentData);
+        loadOptions();
+      })
+      .catch(function (error) {
+        console.error("Error adding department:", error);
+      });
+  })
+  .catch(function (error) {
+    console.error("Error prompting for department name:", error);
+  });
 }
+
+async function addRole() {
+  let departments = await getAll("Departments")
+  let departmentNames = departments.map(dept => dept.name)
+  let answers = await inquirer.prompt([
+    {
+      type: "input",
+      name: "title",
+      message: "What is the title of the role?"
+    },
+    {
+      type: "input",
+      name: "salary",
+      message: "What is the salary?"
+    },
+    {
+      type: "list",
+      name: "dept",
+      message: "Which department?",
+      choices: departmentNames
+    },
+  ])
+  let deparmentId = departments.find(dept => dept.name === answers.dept).id
+  let roleData = db.addRole(answers.title, answers.salary, deparmentId)
+  console.table(roleData)
+  loadOptions()
+}
+
+async function addEmployee() {
+  let roles = await getAll("Roles")
+  // console.log("Roles:", roles)
+  let roleNames = roles.map(role => role.title)
+  let managers = await getAll("Managers")
+  // console.log("Managers:", managers)
+  let managerNames = managers.map(mgr => mgr.first_name)
+  let answers = await inquirer.prompt([
+    {
+      type: "input",
+      name: "firstName",
+      message: "First name:"
+    },
+    {
+      type: "input",
+      name: "lastName",
+      message: "Last name:"
+    },
+    {
+      type: "list",
+      name: "role",
+      message: "Which role?",
+      choices: roleNames
+    },
+    {
+      type: "list",
+      name: "mgr",
+      message: "Which manager?",
+      choices: managerNames
+    },
+  ])
+  let roleId = roles.find(role => role.title === answers.role).id
+  let mgrId = managers.find(mgr => mgr.first_name === answers.mgr).manager_id
+  let data = await db.addEmployee(
+    answers.firstName,
+    answers.lastName,
+    roleId,
+    mgrId
+  )
+  console.log(data)
+  loadOptions()
+}
+
 function loadOptions() {
   inquirer
     .prompt(questions)
@@ -80,7 +190,6 @@ function loadOptions() {
     })
     .catch((error) => {
       if (error.isTtyError) {
-        // Prompt couldn't be rendered in the current environment
       } else {
         // Something else went wrong
       }
