@@ -1,5 +1,7 @@
 # december-s
 
+Link to an app functionality screen recording - https://drive.google.com/file/d/1qiQqe-iWn44yRpjNMRIAxO-WzjhbPoai/view?usp=sharing
+
 * The command-line application that accepts user input and allows to view the information stored in the DB and/or edit the tables in the database.
 
 
