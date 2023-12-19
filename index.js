@@ -1,3 +1,29 @@
+/*
+    callbacks
+      3 forms
+        1. pre-defined
+          myFunction
+        2. anonymous, old syntax
+          function(){}
+        3. anonymous, arrow syntax
+          ()=>{}
+    anonymous functions
+    arrow syntax
+    
+    higher-order array methods
+      forEach, map, filter, find, findIndex, every, some, sort, reduce
+
+    async & promises
+      a promise is a special object that represents an async task
+        2 ways of dealing with promises
+          1. old way (then/catch)
+            Promise.then(()=>{}).catch(()=>{})
+          2. new way (async/await)
+            async function something() {
+              let resolution = await Promise
+              ...
+            }
+*/
 
 const inquirer = require('inquirer');
 const cTable = require('console.table');
@@ -148,6 +174,32 @@ async function addEmployee() {
     mgrId
   )
   console.log(data)
+  loadOptions()
+}
+
+async function updateEmployeeRole() {
+  let roles = await getAll("Roles")
+  let roleNames = roles.map(role => role.title)
+  let employees = await getAll("Employees")
+  let employeeNames = employees.map(em => em.first_name)
+  let answers = await inquirer.prompt([
+    {
+      type: "list",
+      name: "employee_id",
+      message: "Which employee?",
+      choices: employeeNames
+    },
+    {
+      type: "list",
+      name: "role_id",
+      choices: roleNames,
+      message: "Update role to...?"
+    }
+  ])
+  let role_id = roles.find(role => role.title === answers.role_id).id
+  let employee_id = employees.find(em => em.first_name === answers.employee_id).id
+  await db.updateEmployeeRole(employee_id, role_id)
+  // console.log(data)
   loadOptions()
 }
 
